@@ -1,3 +1,8 @@
+0.first setup
+pip install -r $DETECTRON/requirements.txt
+cd $DETECTRON && make
+python $DETECTRON/detectron/tests/test_spatial_narrow_as_op.py
+
 1. train network
 python tools/train_net.py --cfg configs/12_2017_baselines/e2e_mask_rcnn_R-50-C4_1x.yaml  OUTPUT_DIR run/train7
 
