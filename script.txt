@@ -1,0 +1,10 @@
+1. train network
+python tools/train_net.py --cfg configs/12_2017_baselines/e2e_mask_rcnn_R-50-C4_1x.yaml  OUTPUT_DIR run/train7
+
+2. inference
+python tools/infer_simple.py     --cfg configs/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_2x.yaml     --output-dir demo/predict     --image-ext jpg     --wts https://dl.fbaipublicfiles.com/detectron/35861858/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_2x.yaml.02_32_51.SgT4y1cO/output/train/coco_2014_train:coco_2014_valminusminival/generalized_rcnn/model_final.pkl     demo 
+
+python tools/infer_simple.py     --cfg configs/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_2x.yaml     --output-dir test/predict     --image-ext jpg     --wts weights/e2e_mask_rcnn_R-101-FPN_2x/model_final.pkl   test
+
+3.scp
+sshpass -p 123 scp -r demo/predict/mask/00000.jpg cary@192.168.50.249:~/share/

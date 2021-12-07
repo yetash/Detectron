@@ -255,8 +255,13 @@ def vis_one_image(
         kp_thresh=2, dpi=200, box_alpha=0.0, dataset=None, show_class=False,
         ext='pdf', out_when_no_box=False):
     """Visual debugging of detections."""
+    mask_dir = os.path.join(output_dir, "mask")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+    if not os.path.exists(mask_dir):
+        os.makedirs(mask_dir)
+
 
     if isinstance(boxes, list):
         boxes, segms, keypoints, classes = convert_from_cls_format(
@@ -282,6 +287,7 @@ def vis_one_image(
     ax.axis('off')
     fig.add_axes(ax)
     ax.imshow(im)
+    segim = np.full(im.shape[:2], 0)#background index 0
 
     if boxes is None:
         sorted_inds = [] # avoid crash when 'boxes' is None
@@ -314,10 +320,15 @@ def vis_one_image(
                 bbox=dict(
                     facecolor='g', alpha=0.4, pad=0, edgecolor='none'),
                 color='white')
-
+        # print(classes[i], get_class_string(classes[i], score, dataset))
         # show mask
         if segms is not None and len(segms) > i:
+            #class_color = color_list[classes[i]] * 255
             img = np.ones(im.shape)
+            for z in range(masks.shape[0]):
+                for k in range(masks.shape[1]):
+                    if(masks[z][k][i]==1):
+                        segim[z,k] = classes[i]
             color_mask = color_list[mask_color_id % len(color_list), 0:3]
             mask_color_id += 1
 
@@ -327,7 +338,6 @@ def vis_one_image(
             for c in range(3):
                 img[:, :, c] = color_mask[c]
             e = masks[:, :, i]
-
             contour = cv2.findContours(
                 e.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)[-2]
 
@@ -338,7 +348,7 @@ def vis_one_image(
                     edgecolor='w', linewidth=1.2,
                     alpha=0.5)
                 ax.add_patch(polygon)
-
+        
         # show keypoints
         if keypoints is not None and len(keypoints) > i:
             kps = keypoints[i]
@@ -388,7 +398,8 @@ def vis_one_image(
                 plt.setp(
                     line, color=colors[len(kp_lines) + 1], linewidth=1.0,
                     alpha=0.7)
-
     output_name = os.path.basename(im_name) + '.' + ext
+    maskfile_name = os.path.basename(im_name).replace(".jpg",".png")
+    cv2.imwrite(os.path.join(mask_dir, maskfile_name), segim)
     fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
     plt.close('all')
